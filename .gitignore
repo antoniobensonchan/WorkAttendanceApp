@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Database files (don't commit production data)
+attendance.db
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Build artifacts
+*.spec
+
+# Test files
+test_*.py
+test_*.xlsx
+create_test_*.py
+generate_*.py
+add_absent_attendance.py
+
+# Documentation (optional - keep if you want)
+# *.md
+
+# Logs
+*.log
