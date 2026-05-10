@@ -85,9 +85,15 @@ def set_language():
 
 # ==================== Load Google Material Design CSS ====================
 def get_resource_path(filename):
-    """Get the correct path to resource files (works in both dev and frozen mode)"""
+    """Get the correct path to resource files (works in dev, frozen mode, and Streamlit Cloud)"""
     import sys
     import os
+    
+    # Check if running on Streamlit Cloud
+    if '/home/appuser' in os.getcwd() or '/mount/src' in os.getcwd():
+        # On Streamlit Cloud, files are in the current working directory
+        return os.path.join(os.getcwd(), filename)
+    
     if getattr(sys, 'frozen', False):
         # Running as compiled executable - files are in _internal folder
         application_path = os.path.dirname(sys.executable)
