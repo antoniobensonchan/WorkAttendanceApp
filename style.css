@@ -372,3 +372,90 @@ input[type="checkbox"] {
         padding: 20px;
     }
 }
+
+/* ==================== DARK MODE ==================== */
+body.dark-mode {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode [data-testid="stAppViewContainer"] {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode [data-testid="stAppViewContainer"] .st-emotion-cache-10trblm {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode [data-testid="stAppViewContainer"] h1,
+body.dark-mode [data-testid="stAppViewContainer"] h2,
+body.dark-mode [data-testid="stAppViewContainer"] h3,
+body.dark-mode [data-testid="stAppViewContainer"] p,
+body.dark-mode [data-testid="stAppViewContainer"] span,
+body.dark-mode [data-testid="stAppViewContainer"] div,
+body.dark-mode [data-testid="stAppViewContainer"] label {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode [data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+}
+
+body.dark-mode .card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode .main-container {
+    background: transparent !important;
+}
+
+body.dark-mode .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media screen and (max-width: 768px) {
+    /* Stack toolbar columns */
+    [data-testid="column"] {
+        min-width: 100% !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* Bigger touch targets */
+    button, 
+    [data-testid="stButton"] button {
+        min-height: 44px !important;
+        font-size: 15px !important;
+    }
+    
+    /* Hide sidebar on mobile */
+    [data-testid="stSidebar"] {
+        width: 100% !important;
+        position: relative !important;
+    }
+    
+    .card h3 {
+        font-size: 12px !important;
+    }
+    
+    .card p {
+        font-size: 32px !important;
+    }
+}
+
+/* ==================== BACKUP BUTTON STYLING ==================== */
+.backup-btn button {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    transition: all 0.3s ease !important;
+}
+
+.backup-btn button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3) !important;
+}

@@ -17,67 +17,60 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Force light theme and fix text color
-st.markdown("""
-<style>
-/* Force light theme */
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #f0fdfa 100%) !important;
-}
-
-/* Fix main text color */
-[data-testid="stAppViewContainer"] .stText {
-    color: #1e293b !important;
-}
-
-/* Fix all text elements */
-[data-testid="stAppViewContainer"] h1,
-[data-testid="stAppViewContainer"] h2,
-[data-testid="stAppViewContainer"] h3,
-[data-testid="stAppViewContainer"] p,
-[data-testid="stAppViewContainer"] span,
-[data-testid="stAppViewContainer"] div {
-    color: #1e293b !important;
-}
-
-/* Fix expander text */
-[data-testid="stExpander"] button {
-    color: #1e293b !important;
-}
-
-/* Fix form labels */
-[data-testid="stTextInput"] label,
-[data-testid="stSelectbox"] label,
-[data-testid="stDateInput"] label,
-[data-testid="stNumberInput"] label,
-[data-testid="stCheckbox"] label {
-    color: #1e293b !important;
-}
-
-/* Fix dataframe text */
-[data-testid="stDataFrame"] {
-    color: #1e293b !important;
-}
-
-/* Fix sidebar text */
-[data-testid="stSidebar"] {
-    color: #1e293b !important;
-}
-
-[data-testid="stSidebar"] h1,
-[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span,
-[data-testid="stSidebar"] div {
-    color: #1e293b !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 # ==================== Initialize Session State ====================
 if 'language' not in st.session_state:
     st.session_state.language = 'zh_cn'
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = False
+
+# ==================== Dynamic Theme (Light/Dark) ====================
+if st.session_state.dark_mode:
+    theme_css = """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
+    }
+    [data-testid="stAppViewContainer"] h1,
+    [data-testid="stAppViewContainer"] h2,
+    [data-testid="stAppViewContainer"] h3,
+    [data-testid="stAppViewContainer"] p,
+    [data-testid="stAppViewContainer"] span,
+    [data-testid="stAppViewContainer"] label,
+    [data-testid="stAppViewContainer"] div {
+        color: #e2e8f0 !important;
+    }
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #e2e8f0 !important;
+    }
+    .card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    </style>
+    """
+else:
+    theme_css = """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #f0fdfa 100%) !important;
+    }
+    [data-testid="stAppViewContainer"] h1,
+    [data-testid="stAppViewContainer"] h2,
+    [data-testid="stAppViewContainer"] h3,
+    [data-testid="stAppViewContainer"] p,
+    [data-testid="stAppViewContainer"] span,
+    [data-testid="stAppViewContainer"] label {
+        color: #1e293b !important;
+    }
+    </style>
+    """
+
+st.markdown(theme_css, unsafe_allow_html=True)
+
+# ==================== Initialize Session State ====================
 
 def set_language():
     """Language selector callback"""
@@ -147,7 +140,7 @@ def language_selector():
             options=lang_options,
             index=lang_options.index(current_lang_name),
             key="lang_selector",
-            label_visibility="collapsed"
+            label_visibility="hidden"
         )
         
         if selected != current_lang_name:
@@ -193,12 +186,40 @@ def sidebar_menu():
         (t("nav_individual_worker_stats"), "individual_worker_stats")
     ]
     
+    # Dark Mode Toggle
+    st.sidebar.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    dark_mode = st.sidebar.toggle("🌓 Dark Mode", value=st.session_state.dark_mode, key="dark_mode_toggle")
+    if dark_mode != st.session_state.dark_mode:
+        st.session_state.dark_mode = dark_mode
+        st.rerun()
+    
     selected = st.sidebar.radio(
         "",
         options=[item[0] for item in menu_items],
         key="menu_radio",
-        label_visibility="collapsed"
+        label_visibility="hidden"
     )
+    
+    # Backup & Restore at sidebar bottom
+    st.sidebar.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.sidebar.markdown(f'<p style="font-size:12px; color:#94a3b8; margin:0;">{t("data_backup")}</p>', unsafe_allow_html=True)
+    col_b1, col_b2 = st.sidebar.columns(2)
+    with col_b1:
+        if st.button("💾 備份", key="sidebar_backup", use_container_width=True, help="Download database"):
+            with open("attendance.db", "rb") as f:
+                st.sidebar.download_button(
+                    label="📥 Download DB",
+                    data=f,
+                    file_name=f"attendance_backup_{date.today()}.db",
+                    mime="application/octet-stream",
+                    key="db_download"
+                )
+    with col_b2:
+        uploaded_db = st.sidebar.file_uploader("📤 還原", type=["db"], key="sidebar_restore", label_visibility="collapsed")
+        if uploaded_db is not None:
+            with open("attendance.db", "wb") as f:
+                f.write(uploaded_db.getbuffer())
+            st.sidebar.success("✅ 已還原！請 refresh")
     
     return dict(menu_items)[selected]
 
@@ -246,6 +267,63 @@ def home_page():
         </div>
         ''', unsafe_allow_html=True)
     
+    # Dashboard Charts
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown(f'<h2>📊 {t("overview_charts") if t("overview_charts") != "overview_charts" else "Overview"}</h2>', unsafe_allow_html=True)
+    
+    chart_col1, chart_col2 = st.columns(2)
+    
+    # Chart 1: Attendance trend (last 30 days)
+    with chart_col1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="font-size:14px; margin-bottom:12px;">📈 {t("attendance_trend") if t("attendance_trend") != "attendance_trend" else "最近 30 日出勤走勢"}</h3>', unsafe_allow_html=True)
+        import pandas as pd
+        from datetime import timedelta
+        if attendance:
+            df_a = pd.DataFrame(attendance)
+            df_a['work_date'] = pd.to_datetime(df_a['work_date'])
+            today30 = date.today() - timedelta(days=30)
+            df_recent = df_a[df_a['work_date'].dt.date >= today30]
+            daily_counts = df_recent.groupby(df_recent['work_date'].dt.date).size().reset_index(name='count')
+            daily_counts.columns = ['date', 'count']
+            daily_counts = daily_counts.sort_values('date')
+            st.line_chart(daily_counts.set_index('date'), use_container_width=True)
+        else:
+            st.info("No data yet")
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Chart 2: Site distribution
+    with chart_col2:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="font-size:14px; margin-bottom:12px;">🏗️ {t("site_distribution") if t("site_distribution") != "site_distribution" else "各工地人數分佈"}</h3>', unsafe_allow_html=True)
+        if workers and sites:
+            site_counts = {}
+            for w in workers:
+                for s in sites:
+                    if w.get('company_id') == s.get('id'):
+                        site_name = s.get('name', 'Unknown')
+                        site_counts[site_name] = site_counts.get(site_name, 0) + 1
+            if site_counts:
+                df_sites = pd.DataFrame(list(site_counts.items()), columns=['Site', 'Workers'])
+                st.bar_chart(df_sites.set_index('Site'), use_container_width=True)
+            else:
+                st.info("No site data yet")
+        else:
+            st.info("Add workers and sites first")
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Chart 3: Weekly attendance heatmap
+    if attendance:
+        st.markdown('<div class="card" style="margin-top:16px;">', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="font-size:14px; margin-bottom:12px;">🗓️ Weekly Attendance Pattern</h3>', unsafe_allow_html=True)
+        df_w = pd.DataFrame(attendance)
+        df_w['work_date'] = pd.to_datetime(df_w['work_date'])
+        df_w['weekday'] = df_w['work_date'].dt.day_name()
+        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        weekday_counts = df_w['weekday'].value_counts().reindex(weekday_order, fill_value=0)
+        st.bar_chart(weekday_counts, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================== Companies Management ====================
@@ -280,7 +358,7 @@ def companies_page():
         search_keyword = st.text_input(
             "🔍 搜尋公司",
             placeholder="輸入公司名稱關鍵字...",
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="company_search"
         )
     
@@ -567,7 +645,7 @@ def import_dialog_content():
         uploaded_file = st.file_uploader(
             "拖拽 Excel 到此",
             type=['xlsx', 'xls'],
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="import_upload"
         )
         
@@ -640,7 +718,7 @@ def absent_reasons_page():
         search_keyword = st.text_input(
             "🔍 搜尋缺勤原因",
             placeholder="輸入原因關鍵字...",
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="absent_reason_search"
         )
     
@@ -927,7 +1005,7 @@ def import_absent_reason_dialog_content():
         uploaded_file = st.file_uploader(
             "拖拽 Excel 到此",
             type=['xlsx', 'xls'],
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="import_reason_upload"
         )
         
@@ -1008,7 +1086,7 @@ def workers_page():
         search_keyword = st.text_input(
             "🔍 搜尋員工",
             placeholder="輸入姓名或公司關鍵字...",
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="worker_search"
         )
     
@@ -1308,7 +1386,7 @@ def import_worker_dialog_content(companies):
         uploaded_file = st.file_uploader(
             "拖拽 Excel 到此",
             type=['xlsx', 'xls'],
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="import_worker_upload"
         )
         
@@ -1393,7 +1471,7 @@ def sites_page():
         search_keyword = st.text_input(
             "🔍 搜尋工地",
             placeholder="輸入工地名稱關鍵字...",
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="site_search"
         )
     
@@ -1681,7 +1759,7 @@ def import_site_dialog_content():
         uploaded_file = st.file_uploader(
             "拖拽 Excel 到此",
             type=['xlsx', 'xls'],
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="import_site_upload"
         )
         
@@ -1778,7 +1856,7 @@ def attendance_page():
         search_keyword = st.text_input(
             "🔍 搜尋",
             placeholder="員工或工地...",
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="att_search"
         )
     
@@ -2276,7 +2354,7 @@ def import_attendance_dialog_content(workers, sites, absent_reasons):
         uploaded_file = st.file_uploader(
             "拖拽 Excel 到此",
             type=['xlsx', 'xls'],
-            label_visibility="collapsed",
+            label_visibility="hidden",
             key="import_att_upload"
         )
         

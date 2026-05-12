@@ -60,6 +60,10 @@ LANGUAGES = {
         "total_workers": "👥 Total Workers",
         "total_sites": "🏗️ Total Sites",
         "total_records": "📊 Attendance Records",
+        "data_backup": "💾 Data Backup",
+        "attendance_trend": "📈 30-Day Attendance Trend",
+        "site_distribution": "🏗️ Site Distribution",
+        "weekly_pattern": "🗓️ Weekly Pattern",
         
         # Workers Page
         "workers_title": "Workers Management",
@@ -229,6 +233,10 @@ LANGUAGES = {
         "total_workers": "👥 员工总数",
         "total_sites": "🏗️ 工地总数",
         "total_records": "📊 考勤记录",
+        "data_backup": "💾 数据备份",
+        "attendance_trend": "📈 最近30日出勤趋势",
+        "site_distribution": "🏗️ 各工地人数分布",
+        "weekly_pattern": "🗓️ 每周出勤模式",
         
         # Workers Page
         "workers_title": "员工管理",
@@ -398,6 +406,10 @@ LANGUAGES = {
         "total_workers": "👥 員工總數",
         "total_sites": "🏗️ 工地總數",
         "total_records": "📊 考勤記錄",
+        "data_backup": "💾 資料備份",
+        "attendance_trend": "📈 最近30日出勤趨勢",
+        "site_distribution": "🏗️ 各工地人數分佈",
+        "weekly_pattern": "🗓️ 每週出勤模式",
         
         # Workers Page
         "workers_title": "員工管理",
